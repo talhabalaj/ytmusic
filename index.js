@@ -5,6 +5,8 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const http = require('http');
 
+const PORT = process.env.PORT || 3000;
+
 // GLOBALS
 let q = [];
 const MUSIC_LIBRARY_DIR = path.join(__dirname, 'music');
@@ -160,6 +162,6 @@ http.createServer((req, res) => {
     res.writeHead(403);
     res.end();
   }
-}).listen(80);
+}).listen(PORT);
 
 console.log(q);
