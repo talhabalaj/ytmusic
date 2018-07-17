@@ -1,0 +1,17 @@
+{
+  "name": "youtube-mp3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2",
+    "node-wget-promise": "^0.1.6",
+    "queue": "^4.4.2",
+    "youtube-dl": "^1.12.2"
+  }
+}

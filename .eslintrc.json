@@ -1,0 +1,34 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": "airbnb",
+    "rules": {
+        "no-unused-vars":"warn",
+        "linebreak-style":"off",
+        "comma-dangle": "off",
+        "max-depth":"warn",
+        "max-len":"warn",
+        "no-console": "off",
+        "no-path-concat": "warn",
+        "new-cap": "off",
+        "no-restricted-syntax": "off",
+        "no-shadow": "off",
+        "no-use-before-define": "off",
+        "radix": "off",
+        "no-unused-expressions": "off",
+        "func-names": "off",
+        "no-loop-func": "off",
+        "no-tabs": "off",
+        "no-return-await": "off",
+        "no-underscore-dangle":"off",
+        "consistent-return":"off",
+        "no-param-reassign":"off"
+     },
+    "plugins": [
+        "html", "markdown"
+    ]
+}
