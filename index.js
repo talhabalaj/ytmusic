@@ -39,7 +39,7 @@ function downloadVideo(video) {
         size
       } = info;
 
-      const videoHandler = q.findIndex(v => v.videoId === videoId);
+      const videoHandler = q.find(v => v.videoId === videoId);
       videoHandler.totalSize = size;
       videoHandler.videoTitle = title;
       const filePath = path.join(downloadDirectory, id + path.extname(filename));
@@ -52,14 +52,14 @@ function downloadVideo(video) {
           console.log('Download has been started');
         },
         (progress) => {
-          videoHandler.downloaded(progress.downloadedSize);
-          console.log('Downloading: ', videoId, ' ', progress.downloadedSize, '/', size);
+          videoHandler.downloaded = progress.downloadedSize;
+          console.log('Downloading: ', videoId, ' ', progress.downloadedSize, '/', progress);
         }
       ).then(() => {
         video.status = 'encoding';
         encodeAudio(filePath, (progress) => {
           console.log('Encoding: ', progress.percent, '%');
-          videoHandler.totalSize = progress.targetSize;
+          videoHandler.encodedSize = progress.targetSize * 1024;
           videoHandler.downloadedSize = (progress.percent / 100) * videoHandler.totalSize;
         }).then((newFileName) => {
           resolve(newFileName);
@@ -102,9 +102,10 @@ const updateQueue = (index) => {
     downloadVideo(video).then((fileName) => {
       const videoInfoFile = fs.readFileSync('videoInfo.json');
       const json = JSON.parse(videoInfoFile);
+      video.status = 'complete';
       video.downloadDirectory = `/download/${video.videoId}`;
       json.push(video);
-      fs.writeFileSync(JSON.stringify(json));
+      fs.writeFileSync('videoInfo.json', JSON.stringify(json));
       q = [...q.slice(0, index), ...q.slice(index + 1)];
       console.log(q);
       console.log(fileName, ' has been downloaded and encoded.');
