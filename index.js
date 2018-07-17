@@ -53,14 +53,14 @@ function downloadVideo(video) {
         },
         (progress) => {
           videoHandler.downloaded = progress.downloadedSize;
-          console.log('Downloading: ', videoId, ' ', progress.downloadedSize, '/', progress);
+          videoHandler.totalSize = progress.fileSize;
+          console.log('Downloading: ', videoId, ' ', progress.downloadedSize, '/', progress.fileSize, ' ', progress.percentage * 100, ' %');
         }
       ).then(() => {
         video.status = 'encoding';
         encodeAudio(filePath, (progress) => {
           console.log('Encoding: ', progress.percent, '%');
           videoHandler.encodedSize = progress.targetSize * 1024;
-          videoHandler.downloadedSize = (progress.percent / 100) * videoHandler.totalSize;
         }).then((newFileName) => {
           resolve(newFileName);
         });
