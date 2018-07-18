@@ -1,1 +1,66 @@
-[{"videoId":"WciII3zAzbE","videoUrl":"https://www.youtube.com/watch?v=WciII3zAzbE","videoFormat":251,"status":"complete","totalSize":1650492,"downloaded":1650492,"downloadDirectory":"/download/WciII3zAzbE","videoTitle":"Hello(taqdeer) movie pure violin music (BGM download link in description)","encodedSize":1561600}]
+[
+  {
+    "videoId": "WciII3zAzbE",
+    "videoUrl": "https://www.youtube.com/watch?v=WciII3zAzbE",
+    "videoFormat": 251,
+    "status": "complete",
+    "totalSize": 1650492,
+    "downloadDirectory": "/download/WciII3zAzbE",
+    "videoTitle":
+      "Hello(taqdeer) movie pure violin music (BGM download link in description)",
+    "encodedSize": 1561600
+  },
+  {
+    "videoId": "dMByhaezv9A",
+    "videoUrl": "https://www.youtube.com/watch?v=dMByhaezv9A",
+    "videoFormat": 251,
+    "status": "complete",
+    "totalSize": 3089378,
+    "downloadDirectory": "/download/dMByhaezv9A",
+    "videoTitle":
+      "Teri Khair Mangdi - Baar Baar Dekho | Sidharth Malhotra & Katrina Kaif | Bilal Saeed",
+    "encodedSize": 2832384
+  },
+  {
+    "videoId": "Wd2B8OAotU8",
+    "videoUrl": "https://www.youtube.com/watch?v=Wd2B8OAotU8",
+    "videoFormat": 251,
+    "status": "complete",
+    "totalSize": 2468785,
+    "downloadDirectory": "/download/Wd2B8OAotU8",
+    "videoTitle":
+      "Nashe Si Chadh Gayi Song | Befikre | Ranveer Singh | Vaani Kapoor | Arijit Singh",
+    "encodedSize": 2475008
+  },
+  {
+    "videoId": "nha09bWCcZw",
+    "videoUrl": "https://www.youtube.com/watch?v=nha09bWCcZw",
+    "videoFormat": 251,
+    "status": "complete",
+    "totalSize": 4790673,
+    "downloadDirectory": "/download/nha09bWCcZw",
+    "videoTitle": "Chupke Se | Remix | Saathiya | Dj Smack | Animated Video",
+    "encodedSize": 4378624
+  },
+  {
+    "videoId": "sQJr7b-bkYk",
+    "videoUrl": "https://www.youtube.com/watch?v=sQJr7b-bkYk",
+    "videoFormat": 251,
+    "status": "complete",
+    "totalSize": 4715701,
+    "downloadDirectory": "/download/sQJr7b-bkYk",
+    "videoTitle":
+      "Channa Mereya – Remix By DJ Chetas - Ae Dil Hai Mushkil | Karan | Ranbir | Anushka | Pritam | Arijit",
+    "encodedSize": 4454400
+  },
+  {
+    "videoId": "qDRORgoZxZU",
+    "videoUrl": "https://www.youtube.com/watch?v=qDRORgoZxZU",
+    "videoFormat": 251,
+    "status": "complete",
+    "totalSize": 3022849,
+    "downloadDirectory": "/download/qDRORgoZxZU",
+    "videoTitle": "Meghan Trainor - Me Too",
+    "encodedSize": 2915328
+  }
+]
