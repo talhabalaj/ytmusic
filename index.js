@@ -5,16 +5,31 @@ const ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
 const http = require("http");
 const { lookup } = require("mime-types");
+const fetch = require("node-fetch");
+const { parse: UrlParse } = require("url");
 
 const PORT = process.env.PORT || 3000;
 
 // GLOBALS
 let q = [];
+const YOUTUBE_API_KEY = "AIzaSyDoVH4SgC4MgqCdclmNM2v27sjUZDgHnAE";
+const YOUTUBE_END_POINT = "https://www.googleapis.com/youtube/v3/";
 const MUSIC_LIBRARY_DIR = path.join(__dirname, "music");
+
+function searchForVideo(query, maxResult) {
+  return new Promise((resolve, reject) => {
+    const finalUrl = `${YOUTUBE_END_POINT}search?part=snippet&q=${query}&key=${YOUTUBE_API_KEY}&type=video&maxResults=${maxResult}`;
+    console.log("Requesting", finalUrl);
+    fetch(finalUrl)
+      .then(data => data.json())
+      .then(data => resolve(data.items))
+      .catch(err => reject(err));
+  });
+}
 
 function errorDetails(err) {
   if (err.code === 1) {
-    return "Error: Format not available or possible internet error";
+    return "Error: Format not available or possibly internet error";
   }
   return err;
 }
@@ -129,8 +144,8 @@ const updateQueue = index => {
 
 http
   .createServer((req, res) => {
-    if (req.url.match(/add\/[A-Z-a-z-0-9^\s]{11}/g)) {
-      const videoId = req.url.split("/")[2];
+    if (req.url.match(/api\/add\/[A-Z-a-z-0-9^\s]{11}/g)) {
+      const videoId = req.url.split("/")[3];
       if (q.find(v => v.videoId === videoId)) {
         res.end(
           JSON.stringify({
@@ -164,8 +179,8 @@ http
           })
         );
       }
-    } else if (req.url.match(/info\/[A-Z-a-z-0-9^\s]{11}/g)) {
-      const videoId = req.url.split("/")[2];
+    } else if (req.url.match(/api\/info\/[A-Z-a-z-0-9^\s]{11}/g)) {
+      const videoId = req.url.split("/")[3];
       const info = q.find(e => e.videoId === videoId);
       if (info) {
         info.downloadDirectory = `/download/${videoId}`;
@@ -183,19 +198,37 @@ http
           })
         );
       }
+    } else if (req.url.match(/api\/search\/[^]+\/[0-9]{1,2}/g)) {
+      const query = req.url.split("/")[3];
+      const maxResult = req.url.split("/")[4];
+      searchForVideo(query, maxResult)
+        .then(d => {
+          res.end(JSON.stringify(d));
+        })
+        .catch(err => {
+          res.end(
+            JSON.stringify({
+              Error: `Can't Connect to Youtube: ${err}`
+            })
+          );
+        });
     } else {
-      if (req.url === "/") req.url = "index.html";
-      const filePath = path.join(__dirname, "static", req.url.toString());
-      const mime = lookup(filePath);
+      const parsedURL = UrlParse(req.url.toString());
+      console.log(parsedURL);
+      let filePath = path.join(__dirname, "static", parsedURL.pathname);
       if (!fs.existsSync(filePath)) {
         res.writeHead(404);
-        console.log("Error 404", filePath, mime);
+        console.log("Error 404", filePath);
         res.end(
           JSON.stringify({
             Error: "404 not found"
           })
         );
       } else {
+        if (fs.lstatSync(filePath).isDirectory()) {
+          filePath = path.join(filePath, "index.html");
+        }
+        const mime = lookup(filePath);
         res.writeHead(200, {
           "Content-Type": mime
         });

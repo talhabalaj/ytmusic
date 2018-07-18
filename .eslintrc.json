@@ -27,7 +27,8 @@
         "no-underscore-dangle":"off",
         "consistent-return":"off",
         "no-param-reassign":"off",
-        "prettier/prettier": "warn"
+        "prettier/prettier": "warn",
+        "prefer-destructuring":"warn"
      },
     "plugins": [
         "html", "markdown", "prettier"

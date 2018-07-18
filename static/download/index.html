@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>YTMusic</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <main>
+        <header class='header'>
+            <h1>YTMusic</h1>
+            <p>The best YouTube to MP3 converter.</p>
+        </header>
+        <section class="section-status">
+            <span id="status"></span>
+        </section>
+        <section class="section-download">
+                 
+        </section>        
+    </main>   
+    <script src="../js/script.js">
+    const videoId = window.location.hash;
+    if (videoId) {
+        document.write(videoId)
+    } else {
+        setStatus('warn');
+    }
+    function setStatus(status = 'ok', statusMessage = "") {
+        if (status === 'warn') {
+            color = 'darkyellow';
+        } else if (status === 'error') {
+            color = 'darkred';
+        } else {
+            color = 'green';
+        }
+        $("#status").style.color = statusColor;
+        $("#status").textContent = statusMessage; 
+    }
+    </script>
+</body>
+</html>
