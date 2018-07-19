@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>YTMusic</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>    
+    <main>
+        <header class='header'>
+            <h1>YTMusic</h1>
+            <p>The best YouTube to MP3 converter.</p>
+        </header>
+        <section class="section-search">
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Search">
+                <span class="search-addon">&rarr;</span>
+            </div>    
+            <div class="results-container" id="results">
+                
+            </div>        
+        </section>        
+    </main>    
+    <script src="js/script.js"></script>
+    <script>
+    console.log('Starting!');
+    window.onload = () => {
+        $("#search").focus();
+    };
+    document.addEventListener("DOMContentLoaded", () => {
+        $("#search").addEventListener("keyup", e => {
+            if (e.ctrlKey || e.shiftKey) return;
+            displayVideos($("#search").value);
+        });
+    });
+</script>
+</body>
+</html>
