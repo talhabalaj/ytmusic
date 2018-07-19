@@ -13,9 +13,9 @@ class Queue extends Array {
   addToQueue(element) {
     this.push(element);
   }
-  removeFromQueue(index) {
-    this.filter(r => this.findIndex(a => a == r) != index);
-  }
+  // removeFromQueue(index) {
+  //   this.filter(r => this.findIndex(a => a == r) != index);
+  // }
 }
 
 // GLOBALS
@@ -213,13 +213,13 @@ http
     } else if (req.url.match(/api\/cancel\/[A-Z-a-z-0-9_^\s]{11}/g)) {
       const videoId = req.url.split("/")[3];
       if (q.find(v => v.videoId === videoId)) {
-        q.removeFromQueue(q.findIndex(v => v.videoId === videoId);
+        // q.removeFromQueue(q.findIndex(v => v.videoId === videoId);
         res.end(
           JSON.stringify({
             Success: `${videoId} removed queue`
-
           })
         );
+      }
     } else if (req.url.match(/api\/info\/[A-Z-a-z-0-9_^\s]{11}/g)) {
       const videoId = req.url.split("/")[3];
       const info = q.find(e => e.videoId === videoId);
