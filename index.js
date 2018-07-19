@@ -155,7 +155,7 @@ function serveStatic(filePath, res) {
     console.log("Error 404", filePath);
     res.end(
       JSON.stringify({
-        Error: "404 not found",
+        Error: `404 not found: ${filePath}`,
         ErrorCode: 404
       })
     );
@@ -261,7 +261,9 @@ http
       serveStatic(filePath, res);
     } else {
       const parsedURL = UrlParse(req.url.toString());
-      const filePath = path.join(__dirname, "static", parsedURL.pathname);
+      if (parsedURL.pathname.includes("/download"))
+        parsedURL.pathname = `${parsedURL.pathname.slice(0, 9)}.html`;
+      const filePath = path.join(__dirname, "static-beta", parsedURL.pathname);
       serveStatic(filePath, res);
     }
   })

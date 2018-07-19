@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>YTMusic</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>    
+    <main>
+        <header class='block header'>
+            <h1 class='heading-primary'>
+               <span class="heading-primary">YTMusic</span>
+               <span class='heading-secondary'>The best YouTube to MP3 converter.</span>
+            </h1>
+        </header>        
+        <section class="section section-videoInfo">
+            <div id="status"></div>
+            <div class="videoInfo-container" id="video-info">
+                <div class='text-center'>
+                        <svg width="200px"  height="200px"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-eclipse" style="background: none;"><path ng-attr-d="{{config.pathCmd}}" ng-attr-fill="{{config.color}}" stroke="none" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50" fill="rgb(202, 29, 29)" transform="rotate(145.714 50 51)"><animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 51;360 50 51" keyTimes="0;1" dur="0.7s" begin="0s" repeatCount="indefinite"></animateTransform></path></svg>
+                </div>
+            </div>
+            <div class="video-progress">
+                <div class="downloading-status margin-top-med">
+                    <h4 class='heading-tertiary inline'>Downloading</h4>
+                    <span class='symbol'>&mdash;</span>
+                    <span id="download-status" class="heading-secondary">0MB/0MB - 0%</span>
+                    <div class='progress-box'>
+                        <div class="progress-bar" id="download-status-bar"></div>
+                    </div>
+                </div>
+                <div class="encoding-status margin-top-med">
+                    <h4 class='heading-tertiary inline margin-top-med'>Encoding</h4>
+                    <span class='symbol'>&mdash;</span>
+                    <span id="encode-status" class="heading-secondary">Waiting for download to complete</span>
+                    <div class='progress-box'>
+                        <div class="progress-bar" id="encode-status-bar"></div>
+                    </div>
+                </div>
+            </div>     
+            <div id="download-button"></div>  
+            <div>
+                <a href="/#" class="btn" >back to videos</a>
+            </div>     
+        </section>
+        <footer class="block footer">
+            <h4>
+                <span class="heading-primary">YTMusic</span>
+               <span class='heading-secondary'>Copywrite &copy; 2018, All Rights Reserved.</span>
+            </h4>
+        </footer>      
+    </main>    
+    <script src="../js/script.js"></script>
+    <script>
+    window.onload = main();
+    function main() {
+        const videoId = window.location.hash.slice(1);            
+        if (videoId) {
+            if (videoId.match(/[^]{11}/g)) {               
+                searchForVideo({query: videoId, maxResult: 1})
+                .then(data => {
+                    if (data.length > 0) {
+                        displayVideo(data[0])
+                        addToQueue(videoId)
+                        .then(data => {
+                            setStatus('ok', "Added to queue");
+                            updateProgress(videoId);                            
+                        }) 
+                        .catch(err => {
+                            updateProgress(videoId);
+                            throw err;
+                        });
+                    } else {
+                        setStatus('error', "Video not found");
+                        window.location.href = '/';
+                    }
+                })
+                .catch(err => {
+                    setStatus('error', err.message);
+                    throw err;
+                })
+            } else {
+                setStatus('error', "Invalid Video Id");
+                window.location.href = '/';
+            }
+        } else {
+            setStatus('error', "No Video Id");
+            window.location.href = '/';
+        }
+    }
+    </script>    
+</body>
+</html>

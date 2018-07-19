@@ -9,24 +9,39 @@
 </head>
 <body>    
     <main>
-        <header class='header'>
-            <h1>YTMusic</h1>
-            <p>The best YouTube to MP3 converter.</p>
+        <header class='block header'>
+            <h1 class='heading-primary'>
+               <span class="heading-primary">YTMusic</span>
+               <span class='heading-secondary'>The best YouTube to MP3 converter.</span>
+            </h1>
         </header>
-        <section class="section-search">
+        <section class="section section-search">
             <div class="search-container">
-                <input type="text" id="search" placeholder="Search">
-                <span class="search-addon">&rarr;</span>
+                <input type="text" class="search-bar" id="search" placeholder="Search">
+                <span class="search-addon" onclick="displayVideos($('#search').value)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38.854 37.854"><defs><style>.a{fill:#fff;}.a,.b{stroke:#707070;}.b,.d{fill:none;}.c{stroke:none;}</style></defs><g transform="translate(-1261 -241)"><g class="a" transform="translate(1261 241)"><circle class="c" cx="15.5" cy="15.5" r="15.5"/><circle class="d" cx="15.5" cy="15.5" r="15"/></g><line class="b" x2="12" y2="12" transform="translate(1287.5 266.5)"/></g></svg>
+                </span>
             </div>    
             <div class="results-container" id="results">
-                
+                <h3 class="heading-secondary text-center">Search for a video</h3>
+                <div class="result-status"></div>
             </div>        
-        </section>        
+        </section>  
+        <footer class="block footer">
+            <h4>
+               <span class="heading-primary">YTMusic</span>
+               <span class='heading-secondary'>Copywrite &copy; 2018, All Rights Reserved.</span>
+            </h4>
+        </footer>      
     </main>    
-    <script src="js/script.js"></script>
-    <script>
-    console.log('Starting!');
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+    <script src="js/script-babel.js"></script>
+    <script type="text/javascript">
     window.onload = () => {
+        if (window.location.hash) {
+            $("#search").value = window.location.hash.slice(1);
+            displayVideos($("#search").value);
+        }
         $("#search").focus();
     };
     document.addEventListener("DOMContentLoaded", () => {

@@ -6,3 +6,5 @@
 2. make functions for redundant operations
 3. add compression for audio files.
 4. intergrate gulp with node-sass to fasten up developement
+5. fix node-sass
+6. update updateProgress Method
