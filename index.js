@@ -9,9 +9,17 @@ const fetch = require("node-fetch");
 const { parse: UrlParse } = require("url");
 
 const PORT = process.env.PORT || 3000;
+class Queue extends Array {
+  addToQueue(element) {
+    this.push(element);
+  }
+  removeFromQueue(index) {
+    this.filter(r => this.findIndex(a => a == r) != index);
+  }
+}
 
 // GLOBALS
-let q = [];
+let q = new Queue([]);
 const YOUTUBE_API_KEY = "AIzaSyDoVH4SgC4MgqCdclmNM2v27sjUZDgHnAE";
 const YOUTUBE_END_POINT = "https://www.googleapis.com/youtube/v3/";
 const MUSIC_LIBRARY_DIR = path.join(__dirname, "music");
@@ -141,15 +149,37 @@ const updateQueue = index => {
       });
   }
 };
-
+function serveStatic(filePath, res) {
+  if (!fs.existsSync(filePath)) {
+    res.writeHead(404);
+    console.log("Error 404", filePath);
+    res.end(
+      JSON.stringify({
+        Error: "404 not found",
+        ErrorCode: 404
+      })
+    );
+  } else {
+    if (fs.lstatSync(filePath).isDirectory()) {
+      filePath = path.join(filePath, "index.html");
+    }
+    const mime = lookup(filePath);
+    res.writeHead(200, {
+      "Content-Type": mime
+    });
+    console.log("Serving", filePath, mime);
+    res.end(fs.readFileSync(filePath));
+  }
+}
 http
   .createServer((req, res) => {
-    if (req.url.match(/api\/add\/[A-Z-a-z-0-9^\s]{11}/g)) {
+    if (req.url.match(/api\/add\/[A-Z-a-z-0-9_^\s]{11}/g)) {
       const videoId = req.url.split("/")[3];
       if (q.find(v => v.videoId === videoId)) {
         res.end(
           JSON.stringify({
-            Error: `${videoId} already exists in queue`
+            Error: `${videoId} already exists in queue`,
+            ErrorCode: 1
           })
         );
       } else if (
@@ -157,7 +187,8 @@ http
       ) {
         res.end(
           JSON.stringify({
-            Error: `Already downloaded ${videoId}`
+            Error: `Already downloaded ${videoId}`,
+            ErrorCode: 2
           })
         );
       } else {
@@ -179,7 +210,17 @@ http
           })
         );
       }
-    } else if (req.url.match(/api\/info\/[A-Z-a-z-0-9^\s]{11}/g)) {
+    } else if (req.url.match(/api\/cancel\/[A-Z-a-z-0-9_^\s]{11}/g)) {
+      const videoId = req.url.split("/")[3];
+      if (q.find(v => v.videoId === videoId)) {
+        q.removeFromQueue(q.findIndex(v => v.videoId === videoId);
+        res.end(
+          JSON.stringify({
+            Success: `${videoId} removed queue`
+
+          })
+        );
+    } else if (req.url.match(/api\/info\/[A-Z-a-z-0-9_^\s]{11}/g)) {
       const videoId = req.url.split("/")[3];
       const info = q.find(e => e.videoId === videoId);
       if (info) {
@@ -194,7 +235,8 @@ http
       } else {
         res.end(
           JSON.stringify({
-            Error: `${videoId} does not exist in queue`
+            Error: `${videoId} does not exist in queue`,
+            ErrorCode: 3
           })
         );
       }
@@ -208,33 +250,19 @@ http
         .catch(err => {
           res.end(
             JSON.stringify({
-              Error: `Can't Connect to Youtube: ${err}`
+              Error: `Can't Connect to Youtube: ${err}`,
+              ErrorCode: 4
             })
           );
         });
+    } else if (req.url.match(/music\/[A-Z-a-z-0-9_^\s]{11}\.mp3/g)) {
+      const parsedURL = UrlParse(req.url.toString());
+      const filePath = path.join(__dirname, parsedURL.pathname);
+      serveStatic(filePath, res);
     } else {
       const parsedURL = UrlParse(req.url.toString());
-      console.log(parsedURL);
-      let filePath = path.join(__dirname, "static", parsedURL.pathname);
-      if (!fs.existsSync(filePath)) {
-        res.writeHead(404);
-        console.log("Error 404", filePath);
-        res.end(
-          JSON.stringify({
-            Error: "404 not found"
-          })
-        );
-      } else {
-        if (fs.lstatSync(filePath).isDirectory()) {
-          filePath = path.join(filePath, "index.html");
-        }
-        const mime = lookup(filePath);
-        res.writeHead(200, {
-          "Content-Type": mime
-        });
-        console.log("Serving", filePath, mime);
-        res.end(fs.readFileSync(filePath));
-      }
+      const filePath = path.join(__dirname, "static", parsedURL.pathname);
+      serveStatic(filePath, res);
     }
   })
   .listen(PORT);
