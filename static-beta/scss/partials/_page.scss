@@ -63,7 +63,8 @@
                 height: 60vh;
             }
             .result-container { 
-                margin-bottom: 4rem;   
+                margin-bottom: 4rem;
+                width: 100%;   
                 @media (min-width: 600px) and (max-width:900px) {
                     width: 48%;
                     &:not(:nth-of-type(2n)) {
@@ -114,25 +115,52 @@
                 .details-container {
                     padding: 1.7rem;
                 }
+                .video-description {
+                    height: 15rem;
+                    margin-top: 2rem;
+                    margin-bottom: 2rem;
+                }
             }
         }        
     }
-    &-videoInfo {
+    &-videoInfo {        
         padding: 2.2rem;
-        box-shadow: 0 .4rem 4rem $box-shadow;    
+        box-shadow: 0 .4rem 4rem $box-shadow;
+        @media (max-width: 600px) {
+            margin: 0; 
+        }       
         .videoInfo-container {
             display: flex;
             flex-wrap: wrap;
-            .img-wrapper {
-                overflow: hidden;
+            .img-container {
                 margin-right: 2.5rem;
                 width: calc(30% - 2.5rem);
-                img {
+                @media (max-width: 600px) {
                     width: 100%;
-                }           
-            } 
+                    margin-right:0;
+                    margin-bottom: 2rem;
+                }   
+             }              
+            .img-wrapper {  
+                overflow: hidden;
+                width: 100%;
+                padding-top: 55.8%;
+                background: url(../img/loader.svg), #eee;
+                background-size: 40%;
+                background-repeat: no-repeat;
+                background-position: center;
+                position: relative;
+                img {
+                    position: absolute;
+                    top: 0; bottom: 0; left: 0; right: 0; 
+                    width:inherit;
+                }
+            }
             .video-details {
                 width: 70%;
+                @media (max-width: 600px)  {
+                    width: 100%;
+                }   
             }
         }  
     }

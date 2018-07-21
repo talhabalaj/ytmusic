@@ -6,6 +6,24 @@ const loader = `<svg width="200px"  height="200px"  xmlns="http://www.w3.org/200
 const $ = el => document.querySelector(el);
 const $$ = els => document.querySelectorAll(els);
 
+function humanize(n) {
+  let number = parseInt(n);
+  let name = "B";
+  if (number > 1024) {
+    number /= 1024;
+    name = "kB";
+    if (number > 1024) {
+      number /= 1024;
+      name = "MB";
+      if (number > 1024) {
+        number /= 1024;
+        name = "GB";
+      }
+    }
+  }
+  return number.toFixed(2) + name;
+}
+
 function searchForVideo({ query, maxResult = 10 }) {
   if (controller !== undefined) {
     controller.abort();
@@ -43,11 +61,13 @@ function displayVideos(query) {
           </div>
             </div> 
             <div class="details-container">
-                <h2 class="heading-primary">${result.snippet.title}</h2>
+                <h2 class="heading-primary" title="${
+                  result.snippet.title
+                }">${`${result.snippet.title.slice(0, 30).trim()}...`}</h2>
                 <h4 class="heading-secondary">${
                   result.snippet.channelTitle
                 }</h4>
-                <p class="margin-top-sml text-primary">
+                <p class="text-primary video-description">
                 ${result.snippet.description}
                 </p>
                 <a href="/download/#${
@@ -69,9 +89,11 @@ function displayVideos(query) {
 }
 
 function displayVideo(data) {
-  $("#video-info").innerHTML = `<div class="img-wrapper">
+  $(
+    "#video-info"
+  ).innerHTML = `<div class='img-container'><div class="img-wrapper">
       <img src="${data.snippet.thumbnails.medium.url}" alt="img">
-  </div>
+  </div></div>
   <div class="video-details">
       <h2 class="heading-primary">${data.snippet.title}</h2>
       <h3 class="heading-secondary">${data.snippet.channelTitle}</h3>
@@ -85,31 +107,42 @@ function updateProgress(videoId) {
   getInfoAboutVideo(videoId)
     .then(data => {
       timeoutManager = setTimeout(updateProgress, 1000, videoId);
-      if (data.status === "getting-metadata") {
-        setStatus("ok", "getting metadata");
-      } else if (data.status === "downloading") {
-        const percent = parseInt((data.downloaded / data.totalSize) * 100);
-        $("#download-status-bar").style.width = `${percent}%`;
-        $("#download-status").innerHTML = `${data.downloaded}/${
+      if (
+        data.status !== "downloading" &&
+        data.status !== "getting-metadata" &&
+        data.status !== "waiting"
+      ) {
+        $("#download-status-bar").style.width = `100%`;
+        $("#download-status").innerHTML = `${humanize(
           data.totalSize
-        }     ${percent}%`;
-      } else if (data.status === "encoding") {
-        $("#download-status-bar").style.width = `100%`;
-        $("#download-status").innerHTML = `${data.totalSize} downloaded`;
-        let { encodedPercent: percent } = data;
-        percent = parseInt(percent);
-        $("#encoding-status-bar").style.width = `${percent}%`;
-        $("#encoding-status").innerHTML = `${percent}%`;
-      } else if (data.status === "complete") {
-        $("#download-status-bar").style.width = `100%`;
-        $("#download-status").innerHTML = `${data.totalSize}B downloaded`;
+        )} downloaded`;
+      } else {
+        setStatus("ok", "Downloading...");
+        const percent = parseInt((data.downloaded / data.totalSize) * 100);
+        $("#download-status-bar").style.width = `${percent || `0`}%`;
+        $("#download-status").innerHTML = `${humanize(
+          data.downloaded
+        )}/${humanize(data.totalSize)}     ${percent || `0`}%`;
+      }
+      if (data.status === "complete") {
         $("#encode-status-bar").style.width = `100%`;
-        $("#encoding-status").innerHTML = `100% complete`;
+        $("#encode-status").innerHTML = `100% complete`;
         downloadComplete(videoId);
+      } else if (data.status === "encoding") {
+        setStatus("ok", "Encoding...");
+        let { encodedPercent: percent } = data;
+        percent = percent === undefined ? percent.toFixed(2) : "0";
+        $("#encode-status-bar").style.width = `${percent}%`;
+        $("#encode-status").innerHTML = `${percent}% complete`;
+      } else if (
+        data.status === "getting-metadata" ||
+        data.status === "waiting"
+      ) {
+        setStatus("ok", "Waiting for download to start...");
       }
     })
     .catch(err => {
-      throw err;
+      setStatus("error", `${err.message} (maybe this cannot be processed)`);
     });
 }
 function downloadComplete(videoId) {

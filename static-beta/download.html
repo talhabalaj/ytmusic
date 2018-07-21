@@ -15,14 +15,14 @@
                <span class='heading-secondary'>The best YouTube to MP3 converter.</span>
             </h1>
         </header>        
-        <section class="section section-videoInfo">
-            <div id="status"></div>
+        <section class="section section-videoInfo">            
             <div class="videoInfo-container" id="video-info">
                 <div class='text-center'>
                         <svg width="200px"  height="200px"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-eclipse" style="background: none;"><path ng-attr-d="{{config.pathCmd}}" ng-attr-fill="{{config.color}}" stroke="none" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50" fill="rgb(202, 29, 29)" transform="rotate(145.714 50 51)"><animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 51;360 50 51" keyTimes="0;1" dur="0.7s" begin="0s" repeatCount="indefinite"></animateTransform></path></svg>
                 </div>
             </div>
             <div class="video-progress">
+                <div id="status" class="heading-secondary margin-top-med"></div>
                 <div class="downloading-status margin-top-med">
                     <h4 class='heading-tertiary inline'>Downloading</h4>
                     <span class='symbol'>&mdash;</span>
@@ -52,6 +52,7 @@
             </h4>
         </footer>      
     </main>    
+    <script src="https://cdn.jsdelivr.net/npm/abortcontroller-polyfill@1.1.9/dist/umd-polyfill.min.js"></script>
     <script src="../js/script.js"></script>
     <script>
     window.onload = main();

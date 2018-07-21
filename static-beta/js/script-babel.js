@@ -12,6 +12,24 @@ var $$ = function $$(els) {
   return document.querySelectorAll(els);
 };
 
+function humanize(n) {
+  var number = parseInt(n);
+  var name = "B";
+  if (number > 1024) {
+    number /= 1024;
+    name = "kB";
+    if (number > 1024) {
+      number /= 1024;
+      name = "MB";
+      if (number > 1024) {
+        number /= 1024;
+        name = "GB";
+      }
+    }
+  }
+  return number.toFixed(2) + name;
+}
+
 function searchForVideo(_ref) {
   var query = _ref.query,
       _ref$maxResult = _ref.maxResult,
@@ -51,7 +69,7 @@ function displayVideos(query) {
       for (var _iterator = data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var result = _step.value;
 
-        response += "\n        <div class='result-container'>\n            <div class=\"img-container\">\n              <div class=\"img-wrapper\">\n                  <img src=\"" + result.snippet.thumbnails.medium.url + "\" alt=\"" + result.id.videoId + "\">\n          </div>\n            </div> \n            <div class=\"details-container\">\n                <h2 class=\"heading-primary\">" + result.snippet.title + "</h2>\n                <h4 class=\"heading-secondary\">" + result.snippet.channelTitle + "</h4>\n                <p class=\"margin-top-sml text-primary\">\n                " + result.snippet.description + "\n                </p>\n                <a href=\"/download/#" + result.id.videoId + "\" class=\"text-center btn\">download</a>\n            </div>                        \n        </div> \n        ";
+        response += "\n        <div class='result-container'>\n            <div class=\"img-container\">\n              <div class=\"img-wrapper\">\n                  <img src=\"" + result.snippet.thumbnails.medium.url + "\" alt=\"" + result.id.videoId + "\">\n          </div>\n            </div> \n            <div class=\"details-container\">\n                <h2 class=\"heading-primary\" title=\"" + result.snippet.title + "\">" + (result.snippet.title.slice(0, 30).trim() + "...") + "</h2>\n                <h4 class=\"heading-secondary\">" + result.snippet.channelTitle + "</h4>\n                <p class=\"text-primary video-description\">\n                " + result.snippet.description + "\n                </p>\n                <a href=\"/download/#" + result.id.videoId + "\" class=\"text-center btn\">download</a>\n            </div>                        \n        </div> \n        ";
       }
     } catch (err) {
       _didIteratorError = true;
@@ -76,35 +94,37 @@ function displayVideos(query) {
 }
 
 function displayVideo(data) {
-  $("#video-info").innerHTML = "<div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.medium.url + "\" alt=\"img\">\n  </div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description + "\n      </p>\n  </div>";
+  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.medium.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description + "\n      </p>\n  </div>";
 }
 
 function updateProgress(videoId) {
   getInfoAboutVideo(videoId).then(function (data) {
     timeoutManager = setTimeout(updateProgress, 1000, videoId);
-    if (data.status === "getting-metadata") {
-      setStatus("ok", "getting metadata");
-    } else if (data.status === "downloading") {
-      var percent = parseInt(data.downloaded / data.totalSize * 100);
-      $("#download-status-bar").style.width = percent + "%";
-      $("#download-status").innerHTML = data.downloaded + "/" + data.totalSize + "     " + percent + "%";
-    } else if (data.status === "encoding") {
+    if (data.status !== "downloading" && data.status !== "getting-metadata" && data.status !== "waiting") {
       $("#download-status-bar").style.width = "100%";
-      $("#download-status").innerHTML = data.totalSize + " downloaded";
+      $("#download-status").innerHTML = humanize(data.totalSize) + " downloaded";
+    } else {
+      setStatus("ok", "Downloading...");
+      var percent = parseInt(data.downloaded / data.totalSize * 100);
+      $("#download-status-bar").style.width = (percent || "0") + "%";
+      $("#download-status").innerHTML = humanize(data.downloaded) + "/" + humanize(data.totalSize) + "     " + (percent || "0") + "%";
+    }
+    if (data.status === "complete") {
+      $("#encode-status-bar").style.width = "100%";
+      $("#encode-status").innerHTML = "100% complete";
+      downloadComplete(videoId);
+    } else if (data.status === "encoding") {
+      setStatus("ok", "Encoding...");
       var _percent = data.encodedPercent;
 
-      _percent = parseInt(_percent);
-      $("#encoding-status-bar").style.width = _percent + "%";
-      $("#encoding-status").innerHTML = _percent + "%";
-    } else if (data.status === "complete") {
-      $("#download-status-bar").style.width = "100%";
-      $("#download-status").innerHTML = data.totalSize + "B downloaded";
-      $("#encode-status-bar").style.width = "100%";
-      $("#encoding-status").innerHTML = "100% complete";
-      downloadComplete(videoId);
+      _percent = _percent === undefined ? _percent.toFixed(2) : "0";
+      $("#encode-status-bar").style.width = _percent + "%";
+      $("#encode-status").innerHTML = _percent + "% complete";
+    } else if (data.status === "getting-metadata" || data.status === "waiting") {
+      setStatus("ok", "Waiting for download to start...");
     }
   }).catch(function (err) {
-    throw err;
+    setStatus("error", err.message + " (maybe this cannot be processed)");
   });
 }
 function downloadComplete(videoId) {

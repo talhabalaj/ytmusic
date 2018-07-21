@@ -8,3 +8,5 @@
 4. intergrate gulp with node-sass to fasten up developement
 5. fix node-sass
 6. update updateProgress Method
+7. thumbnail fix ( some are not 16:9 )
+8. abort Controller polyfill
