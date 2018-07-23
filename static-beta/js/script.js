@@ -92,7 +92,7 @@ function displayVideo(data) {
   $(
     "#video-info"
   ).innerHTML = `<div class='img-container'><div class="img-wrapper">
-      <img src="${data.snippet.thumbnails.medium.url}" alt="img">
+      <img src="${data.snippet.thumbnails.high.url}" alt="img">
   </div></div>
   <div class="video-details">
       <h2 class="heading-primary">${data.snippet.title}</h2>
@@ -131,7 +131,7 @@ function updateProgress(videoId) {
       } else if (data.status === "encoding") {
         setStatus("ok", "Encoding...");
         let { encodedPercent: percent } = data;
-        percent = percent === undefined ? percent.toFixed(2) : "0";
+        percent = percent !== undefined ? percent.toFixed(2) : "0";
         $("#encode-status-bar").style.width = `${percent}%`;
         $("#encode-status").innerHTML = `${percent}% complete`;
       } else if (

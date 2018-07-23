@@ -94,7 +94,7 @@ function displayVideos(query) {
 }
 
 function displayVideo(data) {
-  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.medium.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description + "\n      </p>\n  </div>";
+  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.high.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description + "\n      </p>\n  </div>";
 }
 
 function updateProgress(videoId) {
@@ -117,7 +117,7 @@ function updateProgress(videoId) {
       setStatus("ok", "Encoding...");
       var _percent = data.encodedPercent;
 
-      _percent = _percent === undefined ? _percent.toFixed(2) : "0";
+      _percent = _percent !== undefined ? _percent.toFixed(2) : "0";
       $("#encode-status-bar").style.width = _percent + "%";
       $("#encode-status").innerHTML = _percent + "% complete";
     } else if (data.status === "getting-metadata" || data.status === "waiting") {

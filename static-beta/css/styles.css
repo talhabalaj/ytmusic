@@ -154,12 +154,15 @@ body {
         .section-search .results-container .result-container .details-container {
           padding: 1.7rem; }
         .section-search .results-container .result-container .video-description {
-          height: 15rem;
+          height: 20rem;
           margin-top: 2rem;
           margin-bottom: 2rem; }
   .section-videoInfo {
     padding: 2.2rem;
     box-shadow: 0 0.4rem 4rem rgba(0, 0, 0, 0.15); }
+    @media (max-width: 600px) {
+      .section-videoInfo {
+        margin: 0; } }
     .section-videoInfo .videoInfo-container {
       display: flex;
       flex-wrap: wrap; }
@@ -174,7 +177,7 @@ body {
       .section-videoInfo .videoInfo-container .img-wrapper {
         overflow: hidden;
         width: 100%;
-        padding-top: 55.8%;
+        padding-top: 74.8%;
         background: url(../img/loader.svg), #eee;
         background-size: 40%;
         background-repeat: no-repeat;
