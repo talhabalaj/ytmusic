@@ -53,17 +53,17 @@
         </footer>      
     </main>    
     <script src="https://cdn.jsdelivr.net/npm/abortcontroller-polyfill@1.1.9/dist/umd-polyfill.min.js"></script>
-    <script src="../js/script.js"></script>
+    <script src="../js/script-babel.js"></script>
     <script>
     window.onload = main();
     function main() {
         const videoId = window.location.hash.slice(1);            
         if (videoId) {
             if (videoId.match(/[^]{11}/g)) {               
-                searchForVideo({query: videoId, maxResult: 1})
+                getVideoDetails(videoId)
                 .then(data => {
-                    if (data.length > 0) {
-                        displayVideo(data[0])
+                    if (data.items.length > 0) {
+                        displayVideo(data.items[0])
                         addToQueue(videoId)
                         .then(data => {
                             setStatus('ok', "Added to queue");

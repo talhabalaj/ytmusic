@@ -19,7 +19,7 @@ class Queue extends Array {
 }
 
 // GLOBALS
-let q = new Queue([]);
+let q = new Queue();
 const YOUTUBE_API_KEY = "AIzaSyDoVH4SgC4MgqCdclmNM2v27sjUZDgHnAE";
 const YOUTUBE_END_POINT = "https://www.googleapis.com/youtube/v3/";
 const MUSIC_LIBRARY_DIR = path.join(__dirname, "music");
@@ -30,7 +30,18 @@ function searchForVideo(query, maxResult) {
     console.log("Requesting", finalUrl);
     fetch(finalUrl)
       .then(data => data.json())
-      .then(data => resolve(data.items))
+      .then(data => resolve(data))
+      .catch(err => reject(err));
+  });
+}
+
+function getVideoDetails(videoId) {
+  return new Promise((resolve, reject) => {
+    const finalUrl = `${YOUTUBE_END_POINT}videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}&type=video`;
+    console.log("Requesting", finalUrl);
+    fetch(finalUrl)
+      .then(data => data.json())
+      .then(data => resolve(data))
       .catch(err => reject(err));
   });
 }
@@ -116,7 +127,7 @@ function downloadVideo(video) {
             .output(newFileName)
             .on("progress", progressHandler)
             .on("end", () => {
-              fs.unlink(filePath);
+              fs.unlinkSync(filePath);
               resolve(newFileName);
             })
             .on("error", err => {
@@ -149,7 +160,7 @@ const updateQueue = index => {
       });
   }
 };
-function serveStatic(filePath, res) {
+function serveStatic(filePath, res, req) {
   if (!fs.existsSync(filePath)) {
     res.writeHead(404);
     console.log("Error 404", filePath);
@@ -163,12 +174,29 @@ function serveStatic(filePath, res) {
     if (fs.lstatSync(filePath).isDirectory()) {
       filePath = path.join(filePath, "index.html");
     }
+    const total = fs.statSync(filePath).size;
     const mime = lookup(filePath);
-    res.writeHead(200, {
-      "Content-Type": mime
-    });
-    console.log("Serving", filePath, mime);
-    res.end(fs.readFileSync(filePath));
+    if (req.headers.range) {
+        var range = req.headers.range;
+        var parts = range.replace(/bytes=/, "").split("-");
+        var partialstart = parts[0];
+        var partialend = parts[1];
+
+        var start = parseInt(partialstart, 10);
+        var end = partialend ? parseInt(partialend, 10) : total-1;
+        var chunksize = (end-start)+1;
+        var readStream = fs.createReadStream(filePath, {start: start, end: end});
+        res.writeHead(206, {
+            'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+            'Accept-Ranges': 'bytes', 'Content-Length': chunksize,
+            'Content-Type': mime
+        });
+        readStream.pipe(res);
+     } else {
+        res.writeHead(200, { 'Content-Length': total, 'Content-Type': mime });
+        fs.createReadStream(filePath).pipe(res);
+     }
+
   }
 }
 http
@@ -255,16 +283,28 @@ http
             })
           );
         });
+    } else if (req.url.match(/api\/youtube\/[A-Z-a-z-0-9_^\s]{11}/g)) {
+      const videoId = req.url.split("/")[3];
+      getVideoDetails(videoId)
+       .then((data) => {
+          res.end(JSON.stringify(data));
+       })
+       .catch((err) => {
+         res.end(JSON.stringify({
+           Error: `Video doesn't exist`,
+           ErrorCode: 5
+         }))
+       })
     } else if (req.url.match(/music\/[A-Z-a-z-0-9_^\s]{11}\.mp3/g)) {
       const parsedURL = UrlParse(req.url.toString());
       const filePath = path.join(__dirname, parsedURL.pathname);
-      serveStatic(filePath, res);
+      serveStatic(filePath, res, req);
     } else {
       const parsedURL = UrlParse(req.url.toString());
       if (parsedURL.pathname.includes("/download"))
         parsedURL.pathname = `${parsedURL.pathname.slice(0, 9)}.html`;
       const filePath = path.join(__dirname, "static-beta", parsedURL.pathname);
-      serveStatic(filePath, res);
+      serveStatic(filePath, res, req);
     }
   })
   .listen(PORT);

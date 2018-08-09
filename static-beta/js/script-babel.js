@@ -57,6 +57,20 @@ function searchForVideo(_ref) {
     });
   });
 }
+
+function getVideoDetails(videoId) {
+  return new Promise(function (resolve, reject) {
+    var url = "/api/youtube/" + videoId;
+    fetch(url, { signal: signal }).then(function (data) {
+      return data.json();
+    }).then(function (data) {
+      return resolve(data);
+    }).catch(function (err) {
+      return reject(err);
+    });
+  });
+}
+
 function displayVideos(query) {
   if ($("#results svg") === null) $("#results").innerHTML = "<div class='result-status'>" + loader + "</div>";
   searchForVideo({ query: query }).then(function (data) {
@@ -66,7 +80,7 @@ function displayVideos(query) {
     var _iteratorError = undefined;
 
     try {
-      for (var _iterator = data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      for (var _iterator = data.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var result = _step.value;
 
         response += "\n        <div class='result-container'>\n            <div class=\"img-container\">\n              <div class=\"img-wrapper\">\n                  <img src=\"" + result.snippet.thumbnails.medium.url + "\" alt=\"" + result.id.videoId + "\">\n          </div>\n            </div> \n            <div class=\"details-container\">\n                <h2 class=\"heading-primary\" title=\"" + result.snippet.title + "\">" + (result.snippet.title.slice(0, 30).trim() + "...") + "</h2>\n                <h4 class=\"heading-secondary\">" + result.snippet.channelTitle + "</h4>\n                <p class=\"text-primary video-description\">\n                " + result.snippet.description + "\n                </p>\n                <a href=\"/download/#" + result.id.videoId + "\" class=\"text-center btn\">download</a>\n            </div>                        \n        </div> \n        ";
@@ -94,7 +108,7 @@ function displayVideos(query) {
 }
 
 function displayVideo(data) {
-  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.high.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description + "\n      </p>\n  </div>";
+  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.high.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description.slice(0, 500).trim() + "...\n      </p>\n  </div>";
 }
 
 function updateProgress(videoId) {
@@ -112,7 +126,10 @@ function updateProgress(videoId) {
     if (data.status === "complete") {
       $("#encode-status-bar").style.width = "100%";
       $("#encode-status").innerHTML = "100% complete";
-      downloadComplete(videoId);
+      clearTimeout(timeoutManager);
+      setStatus("ok", "Download complete");
+      $("#download-button").innerHTML += "\n        <audio src='/music/" + videoId + ".mp3' id='player' class='margin-top-med' controls>not supported boi? you have a life?</audio>\n        <a href=\"/music/" + videoId + ".mp3\" download='" + data.videoTitle + ".mp3' class=\"btn\">download as mp3</a>\n        ";
+      visualizerInit();
     } else if (data.status === "encoding") {
       setStatus("ok", "Encoding...");
       var _percent = data.encodedPercent;
@@ -124,13 +141,30 @@ function updateProgress(videoId) {
       setStatus("ok", "Waiting for download to start...");
     }
   }).catch(function (err) {
-    setStatus("error", err.message + " (maybe this cannot be processed)");
+    setStatus("error", "" + err.message);
   });
 }
-function downloadComplete(videoId) {
-  clearTimeout(timeoutManager);
-  setStatus("ok", "Download complete");
-  $("#download-button").innerHTML += "<a href=\"/music/" + videoId + ".mp3\" class=\"btn\">download as mp3</a>";
+function visualizerInit() {
+  var audio = $('#player');
+  var context = new AudioContext();
+  var src = context.createMediaElementSource(audio);
+  var analyser = context.createAnalyser();
+  src.connect(analyser);
+  analyser.connect(context.destination);
+  analyser.fftSize = 256;
+  var bufferLength = analyser.frequencyBinCount;
+  var dataArray = new Uint8Array(bufferLength);
+  audio.onplay = function () {
+    (function colorUpdate() {
+      analyser.getByteFrequencyData(dataArray);
+      var r = dataArray[0];
+      var g = dataArray[64];
+      var b = dataArray[127];
+      var color = "rgb(" + r + ", " + g + ", " + b + ")";
+      document.documentElement.style.setProperty('--color-primary', color);
+      setTimeout(colorUpdate, 1);
+    })();
+  };
 }
 function getInfoAboutVideo(videoId) {
   return new Promise(function (resolve, reject) {

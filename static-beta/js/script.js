@@ -44,13 +44,24 @@ function searchForVideo({ query, maxResult = 10 }) {
       .catch(err => reject(err));
   });
 }
+
+function getVideoDetails(videoId) {
+  return new Promise((resolve, reject) => {
+    const url = `/api/youtube/${videoId}`;
+    fetch(url, { signal })
+      .then(data => data.json())
+      .then(data => resolve(data))
+      .catch(err => reject(err));
+  });
+}
+
 function displayVideos(query) {
   if ($("#results svg") === null)
     $("#results").innerHTML = `<div class='result-status'>${loader}</div>`;
   searchForVideo({ query })
     .then(data => {
       let response = "";
-      for (const result of data) {
+      for (const result of data.items) {
         response += `
         <div class='result-container'>
             <div class="img-container">
@@ -98,7 +109,7 @@ function displayVideo(data) {
       <h2 class="heading-primary">${data.snippet.title}</h2>
       <h3 class="heading-secondary">${data.snippet.channelTitle}</h3>
       <p class="text-primary">
-      ${data.snippet.description}
+      ${data.snippet.description.slice(0, 500).trim()}...
       </p>
   </div>`;
 }
@@ -127,7 +138,15 @@ function updateProgress(videoId) {
       if (data.status === "complete") {
         $("#encode-status-bar").style.width = `100%`;
         $("#encode-status").innerHTML = `100% complete`;
-        downloadComplete(videoId);
+        clearTimeout(timeoutManager);
+        setStatus("ok", "Download complete");
+        $("#download-button").innerHTML += `
+        <audio src='/music/${videoId}.mp3' id='player' class='margin-top-med' controls>not supported boi? you have a life?</audio>
+        <a href="/music/${videoId}.mp3" download='${
+          data.videoTitle
+        }.mp3' class="btn">download as mp3</a>
+        `;
+        visualizerInit();
       } else if (data.status === "encoding") {
         setStatus("ok", "Encoding...");
         let { encodedPercent: percent } = data;
@@ -142,15 +161,30 @@ function updateProgress(videoId) {
       }
     })
     .catch(err => {
-      setStatus("error", `${err.message} (maybe this cannot be processed)`);
+      setStatus("error", `${err.message}`);
     });
 }
-function downloadComplete(videoId) {
-  clearTimeout(timeoutManager);
-  setStatus("ok", "Download complete");
-  $(
-    "#download-button"
-  ).innerHTML += `<a href="/music/${videoId}.mp3" class="btn">download as mp3</a>`;
+function visualizerInit() {
+  const audio = $("#player");
+  const context = new AudioContext();
+  const src = context.createMediaElementSource(audio);
+  const analyser = context.createAnalyser();
+  src.connect(analyser);
+  analyser.connect(context.destination);
+  analyser.fftSize = 256;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  audio.onplay = function() {
+    (function colorUpdate() {
+      analyser.getByteFrequencyData(dataArray);
+      const r = dataArray[0];
+      const g = dataArray[64];
+      const b = dataArray[127];
+      const color = `rgb(${r}, ${g}, ${b})`;
+      document.documentElement.style.setProperty("--color-primary", color);
+      setTimeout(colorUpdate, 1);
+    })();
+  };
 }
 function getInfoAboutVideo(videoId) {
   return new Promise((resolve, reject) => {
