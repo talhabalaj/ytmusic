@@ -103,7 +103,7 @@ function displayVideo(data) {
   $(
     "#video-info"
   ).innerHTML = `<div class='img-container'><div class="img-wrapper">
-      <img src="${data.snippet.thumbnails.high.url}" alt="img">
+      <img src="${data.snippet.thumbnails.maxres.url}" alt="img">
   </div></div>
   <div class="video-details">
       <h2 class="heading-primary">${data.snippet.title}</h2>

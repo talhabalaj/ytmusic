@@ -74,7 +74,7 @@ body {
   background-color: var(--color-black); }
 
 .section {
-  margin: 2rem 3rem; }
+  margin: 4rem 6rem; }
   .section-search {
     display: block; }
     .section-search .search-container {
@@ -158,7 +158,7 @@ body {
           margin-top: 2rem;
           margin-bottom: 2rem; }
   .section-videoInfo {
-    padding: 2.2rem;
+    padding: 4rem;
     box-shadow: 0 0.4rem 4rem rgba(0, 0, 0, 0.15); }
     @media (max-width: 600px) {
       .section-videoInfo {
@@ -177,7 +177,7 @@ body {
       .section-videoInfo .videoInfo-container .img-wrapper {
         overflow: hidden;
         width: 100%;
-        padding-top: 74.8%;
+        padding-top: 56.8%;
         background: url(../img/loader.svg), #eee;
         background-size: 40%;
         background-repeat: no-repeat;

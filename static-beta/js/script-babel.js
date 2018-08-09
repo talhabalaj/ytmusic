@@ -108,7 +108,7 @@ function displayVideos(query) {
 }
 
 function displayVideo(data) {
-  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.high.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description.slice(0, 500).trim() + "...\n      </p>\n  </div>";
+  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.maxres.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description.slice(0, 500).trim() + "...\n      </p>\n  </div>";
 }
 
 function updateProgress(videoId) {
@@ -145,7 +145,7 @@ function updateProgress(videoId) {
   });
 }
 function visualizerInit() {
-  var audio = $('#player');
+  var audio = $("#player");
   var context = new AudioContext();
   var src = context.createMediaElementSource(audio);
   var analyser = context.createAnalyser();
@@ -161,7 +161,7 @@ function visualizerInit() {
       var g = dataArray[64];
       var b = dataArray[127];
       var color = "rgb(" + r + ", " + g + ", " + b + ")";
-      document.documentElement.style.setProperty('--color-primary', color);
+      document.documentElement.style.setProperty("--color-primary", color);
       setTimeout(colorUpdate, 1);
     })();
   };

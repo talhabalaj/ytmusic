@@ -177,26 +177,29 @@ function serveStatic(filePath, res, req) {
     const total = fs.statSync(filePath).size;
     const mime = lookup(filePath);
     if (req.headers.range) {
-        var range = req.headers.range;
-        var parts = range.replace(/bytes=/, "").split("-");
-        var partialstart = parts[0];
-        var partialend = parts[1];
+      const range = req.headers.range;
+      const parts = range.replace(/bytes=/, "").split("-");
+      const partialstart = parts[0];
+      const partialend = parts[1];
 
-        var start = parseInt(partialstart, 10);
-        var end = partialend ? parseInt(partialend, 10) : total-1;
-        var chunksize = (end-start)+1;
-        var readStream = fs.createReadStream(filePath, {start: start, end: end});
-        res.writeHead(206, {
-            'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
-            'Accept-Ranges': 'bytes', 'Content-Length': chunksize,
-            'Content-Type': mime
-        });
-        readStream.pipe(res);
-     } else {
-        res.writeHead(200, { 'Content-Length': total, 'Content-Type': mime });
-        fs.createReadStream(filePath).pipe(res);
-     }
-
+      const start = parseInt(partialstart, 10);
+      const end = partialend ? parseInt(partialend, 10) : total - 1;
+      const chunksize = end - start + 1;
+      const readStream = fs.createReadStream(filePath, {
+        start,
+        end
+      });
+      res.writeHead(206, {
+        "Content-Range": `bytes ${start}-${end}/${total}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunksize,
+        "Content-Type": mime
+      });
+      readStream.pipe(res);
+    } else {
+      res.writeHead(200, { "Content-Length": total, "Content-Type": mime });
+      fs.createReadStream(filePath).pipe(res);
+    }
   }
 }
 http
@@ -286,15 +289,17 @@ http
     } else if (req.url.match(/api\/youtube\/[A-Z-a-z-0-9_^\s]{11}/g)) {
       const videoId = req.url.split("/")[3];
       getVideoDetails(videoId)
-       .then((data) => {
+        .then(data => {
           res.end(JSON.stringify(data));
-       })
-       .catch((err) => {
-         res.end(JSON.stringify({
-           Error: `Video doesn't exist`,
-           ErrorCode: 5
-         }))
-       })
+        })
+        .catch(err => {
+          res.end(
+            JSON.stringify({
+              Error: `Video doesn't exist`,
+              ErrorCode: 5
+            })
+          );
+        });
     } else if (req.url.match(/music\/[A-Z-a-z-0-9_^\s]{11}\.mp3/g)) {
       const parsedURL = UrlParse(req.url.toString());
       const filePath = path.join(__dirname, parsedURL.pathname);
