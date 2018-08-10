@@ -108,9 +108,18 @@ function displayVideos(query) {
 }
 
 function displayVideo(data) {
-  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.maxres.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description.slice(0, 500).trim() + "...\n      </p>\n  </div>";
+  $("#video-info").innerHTML = "<div class='img-container'><div class=\"img-wrapper\">\n      <img src=\"" + data.snippet.thumbnails.maxres.url + "\" alt=\"img\">\n  </div></div>\n  <div class=\"video-details\">\n      <h2 class=\"heading-primary\">" + data.snippet.title + "</h2>\n      <h3 class=\"heading-secondary\">" + data.snippet.channelTitle + "</h3>\n      <p class=\"text-primary\">\n      " + data.snippet.description.slice(0, 500).trim() + "...\n      <div id='videoDownloadLink'>\n      <svg width=\"50px\"  height=\"50px\"  xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid\" class=\"lds-eclipse\" style=\"background: none;\"><path ng-attr-d=\"{{config.pathCmd}}\" ng-attr-fill=\"{{config.color}}\" stroke=\"none\" d=\"M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50\" fill=\"rgb(202, 29, 29)\" transform=\"rotate(145.714 50 51)\"><animateTransform attributeName=\"transform\" type=\"rotate\" calcMode=\"linear\" values=\"0 50 51;360 50 51\" keyTimes=\"0;1\" dur=\"0.7s\" begin=\"0s\" repeatCount=\"indefinite\"></animateTransform></path></svg></div>\n      </p>\n  </div>";
+  getVideoLink(data.id, data.snippet.title);
 }
-
+function getVideoLink(videoId, videoTitle) {
+  fetch("/api/videoDownload/" + videoId).then(function (data) {
+    return data.json();
+  }).then(function (data) {
+    $("#videoDownloadLink").innerHTML = "\n      <a href='" + data.downloadUrl + "' class='btn' download='" + videoTitle + "'>download the video</a>\n      ";
+  }).catch(function (err) {
+    throw err;
+  });
+}
 function updateProgress(videoId) {
   getInfoAboutVideo(videoId).then(function (data) {
     timeoutManager = setTimeout(updateProgress, 1000, videoId);
@@ -146,7 +155,7 @@ function updateProgress(videoId) {
 }
 function visualizerInit() {
   var audio = $("#player");
-  var context = new AudioContext();
+  var context = new (window.AudioContext || window.webkitAudioContext)();
   var src = context.createMediaElementSource(audio);
   var analyser = context.createAnalyser();
   src.connect(analyser);

@@ -48,7 +48,7 @@ function getVideoDetails(videoId) {
 
 function errorDetails(err) {
   if (err.code === 1) {
-    return "Error: Format not available or possibly internet error";
+    return "Error: Format not available";
   }
   return err;
 }
@@ -286,6 +286,21 @@ http
             })
           );
         });
+    } else if (req.url.match(/api\/videoDownload\/[A-Z-a-z-0-9_^\s]{11}/g)) {
+      const videoId = req.url.split("/")[3];
+      yt.getInfo(
+        `https://youtube.com/watch?v=${videoId}`,
+        [`--format=22`],
+        (err, info) => {
+          res.end(
+            JSON.stringify({
+              videoId: info.id,
+              downloadFormat: 22,
+              downloadUrl: info.url
+            })
+          );
+        }
+      );
     } else if (req.url.match(/api\/youtube\/[A-Z-a-z-0-9_^\s]{11}/g)) {
       const videoId = req.url.split("/")[3];
       getVideoDetails(videoId)

@@ -110,10 +110,26 @@ function displayVideo(data) {
       <h3 class="heading-secondary">${data.snippet.channelTitle}</h3>
       <p class="text-primary">
       ${data.snippet.description.slice(0, 500).trim()}...
+      <div id='videoDownloadLink'>
+      <svg width="50px"  height="50px"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-eclipse" style="background: none;"><path ng-attr-d="{{config.pathCmd}}" ng-attr-fill="{{config.color}}" stroke="none" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50" fill="rgb(202, 29, 29)" transform="rotate(145.714 50 51)"><animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 51;360 50 51" keyTimes="0;1" dur="0.7s" begin="0s" repeatCount="indefinite"></animateTransform></path></svg></div>
       </p>
   </div>`;
+  getVideoLink(data.id, data.snippet.title);
 }
-
+function getVideoLink(videoId, videoTitle) {
+  fetch(`/api/videoDownload/${videoId}`)
+    .then(data => data.json())
+    .then(data => {
+      $("#videoDownloadLink").innerHTML = `
+      <a href='${
+        data.downloadUrl
+      }' class='btn' download='${videoTitle}'>download the video</a>
+      `;
+    })
+    .catch(err => {
+      throw err;
+    });
+}
 function updateProgress(videoId) {
   getInfoAboutVideo(videoId)
     .then(data => {
@@ -166,7 +182,7 @@ function updateProgress(videoId) {
 }
 function visualizerInit() {
   const audio = $("#player");
-  const context = new AudioContext();
+  const context = new (window.AudioContext || window.webkitAudioContext)();
   const src = context.createMediaElementSource(audio);
   const analyser = context.createAnalyser();
   src.connect(analyser);

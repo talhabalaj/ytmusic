@@ -21,6 +21,9 @@
 
 .section {
     margin: 4rem 6rem;
+    @media (min-width: 600px) and (max-width:900px) {
+        margin: 2rem 3rem;
+    }
     &-search {
         display: block;
         .search-container {
@@ -128,6 +131,7 @@
         box-shadow: 0 .4rem 4rem $box-shadow;
         @media (max-width: 600px) {
             margin: 0; 
+            padding: 2.2rem;
         }       
         .videoInfo-container {
             display: flex;
