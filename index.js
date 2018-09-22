@@ -48,7 +48,7 @@ function getVideoDetails(videoId) {
 
 function errorDetails(err) {
   if (err.code === 1) {
-    return "Error: Format not available";
+    return `Error: Format not available ${err.message}`;
   }
   return err;
 }
@@ -292,13 +292,19 @@ http
         `https://youtube.com/watch?v=${videoId}`,
         [`--format=22`],
         (err, info) => {
-          res.end(
-            JSON.stringify({
-              videoId: info.id,
-              downloadFormat: 22,
-              downloadUrl: info.url
-            })
-          );
+          if (err) {
+            res.end(JSON.stringify({
+              Error: "Not found"
+            }))
+          } else {
+            res.end(
+              JSON.stringify({
+                videoId: info.id,
+                downloadFormat: 22,
+                downloadUrl: info.url
+              })
+            );
+          }         
         }
       );
     } else if (req.url.match(/api\/youtube\/[A-Z-a-z-0-9_^\s]{11}/g)) {

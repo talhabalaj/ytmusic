@@ -75,7 +75,7 @@ body {
 
 .section {
   margin: 4rem 6rem; }
-  @media (min-width: 600px) and (max-width: 900px) {
+  @media (max-width: 700px) {
     .section {
       margin: 2rem 3rem; } }
   .section-search {
